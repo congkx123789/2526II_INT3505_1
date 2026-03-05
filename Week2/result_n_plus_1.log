@@ -1,0 +1,9 @@
+--- N+1 Problem ---
+[Bad] Post 101: Post 1: What is API? (by Nguyen Van A)
+[Bad] Post 103: Post 3: N+1 problem and how to avoid it (by Nguyen Van A)
+Total requests: 3
+
+--- Eager Loading ---
+[Good] Post 101: Post 1: What is API? (by Nguyen Van A)
+[Good] Post 103: Post 3: N+1 problem and how to avoid it (by Nguyen Van A)
+Total requests: 1

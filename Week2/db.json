@@ -1,0 +1,26 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "Nguyen Van A",
+      "email": "updated_email@gmail.com"
+    },
+    {
+      "id": "3",
+      "name": "Le Van C",
+      "email": "lvc@gmail.com"
+    }
+  ],
+  "posts": [
+    {
+      "id": "101",
+      "title": "Post 1: What is API?",
+      "userId": "1"
+    },
+    {
+      "id": "103",
+      "title": "Post 3: N+1 problem and how to avoid it",
+      "userId": "1"
+    }
+  ]
+}

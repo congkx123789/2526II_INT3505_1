@@ -1,0 +1,54 @@
+=== SCENARIO 1: Get all users (GET /users) ===
+Status: 200 OK
+Body: [
+  { id: '1', name: 'Nguyen Van A', email: 'updated_email@gmail.com' },
+  { id: '3', name: 'Le Van C', email: 'lvc@gmail.com' }
+]
+--------------------------------------------------
+
+=== SCENARIO 2: Get user details for ID 1 (GET /users/1) ===
+Status: 200 OK
+Body: { id: '1', name: 'Nguyen Van A', email: 'updated_email@gmail.com' }
+--------------------------------------------------
+
+=== SCENARIO 3: Create a new user (POST /users) ===
+Status: 500 Internal Server Error
+Body: Error: Insert failed, duplicate id
+    at Function.insert (C:\Users\Admin\AppData\Local\npm-cache\_npx\9508bc8afe8c5dd3\node_modules\lodash-id\src\index.js:49:18)
+    at C:\Users\Admin\AppData\Local\npm-cache\_npx\9508bc8afe8c5dd3\node_modules\lodash\lodash.js:4469:28
+    at arrayReduce (C:\Users\Admin\AppData\Local\npm-cache\_npx\9508bc8afe8c5dd3\node_modules\lodash\lodash.js:697:21)
+    at baseWrapperValue (C:\Users\Admin\AppData\Local\npm-cache\_npx\9508bc8afe8c5dd3\node_modules\lodash\lodash.js:4468:14)
+    at LodashWrapper.wrapperValue (C:\Users\Admin\AppData\Local\npm-cache\_npx\9508bc8afe8c5dd3\node_modules\lodash\lodash.js:9153:14)
+    at create (C:\Users\Admin\AppData\Local\npm-cache\_npx\9508bc8afe8c5dd3\node_modules\json-server\lib\server\router\plural.js:216:48)
+    at Layer.handle [as handle_request] (C:\Users\Admin\AppData\Local\npm-cache\_npx\9508bc8afe8c5dd3\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Admin\AppData\Local\npm-cache\_npx\9508bc8afe8c5dd3\node_modules\express\lib\router\route.js:149:13)
+    at next (C:\Users\Admin\AppData\Local\npm-cache\_npx\9508bc8afe8c5dd3\node_modules\express\lib\router\route.js:145:7)
+    at Route.dispatch (C:\Users\Admin\AppData\Local\npm-cache\_npx\9508bc8afe8c5dd3\node_modules\express\lib\router\route.js:119:3)
+--------------------------------------------------
+
+=== SCENARIO 4: Update email for user 1 (PATCH /users/1) ===
+Status: 200 OK
+Body: { id: '1', name: 'Nguyen Van A', email: 'updated_email@gmail.com' }
+--------------------------------------------------
+
+=== SCENARIO 5: Delete user ID 2 (DELETE /users/2) ===
+Status: 404 Not Found
+Body: (Empty)
+--------------------------------------------------
+
+=== ERROR TEST 1: Bad Request (GET /400) ===
+Status: 400 Bad Request
+Body: {
+  error: 'Bad Request (400)',
+  message: 'The data you sent is missing or malformed.'
+}
+--------------------------------------------------
+
+=== ERROR TEST 2: Internal Server Error (GET /500) ===
+Status: 500 Internal Server Error
+Body: {
+  error: 'Internal Server Error (500)',
+  message: 'The server encountered an issue while processing data. Please try again later.'
+}
+--------------------------------------------------
+
