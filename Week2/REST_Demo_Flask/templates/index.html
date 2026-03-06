@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>REST Principles - Flask Demo</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: #f7f9fc;
+      }
+      h1 { color: #2c3e50; }
+      .section {
+        background: white;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid #3498db;
+      }
+      button {
+        padding: 10px 15px;
+        margin: 5px 0;
+        border: none;
+        background-color: #3498db;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+      button:hover { background-color: #2980b9; }
+      pre { background: #eee; padding: 10px; border-radius: 4px; font-size: 14px; }
+    </style>
+  </head>
+  <body>
+    <h1>REST API Demo</h1>
+
+    <div class="section" id="c2-client-server">
+      <h3>2. Client-Server (Separation of Concerns)</h3>
+      <p>
+        Client (Trình duyệt): Chuyên trị phần giao diện.<br>
+        Server (Flask): Chuyên trị phần Core Logic và mang lại dữ liệu dạng chuỗi JSON.<br>
+        Hai bên giao tiếp với nhau bằng URL (API). Bạn ấn nút dưới đây để Client móc Data từ Server.
+      </p>
+      <button onclick="fetchBasicData()">GET /api/products (Lấy Data)</button>
+      <pre id="client-server-out">Chưa có Data.</pre>
+    </div>
+
+    <script>
+      // --- 2. Client-Server ---
+      // Client hoàn toàn mù tịt việc Server móc nối Database ra sao, 
+      // nó chỉ phụ trách gọi URL và nhận cục JSON về để render HTML.
+      async function fetchBasicData() {
+        const res = await fetch("/api/products");
+        const data = await res.json();
+        const displayScreen = document.getElementById("client-server-out");
+        
+        // Ráp nối Data động lấy từ Server lên HTML UI của Client
+        displayScreen.textContent = "Data API:\n" + JSON.stringify(data, null, 2);
+      }
+    </script>
+  </body>
+</html>
