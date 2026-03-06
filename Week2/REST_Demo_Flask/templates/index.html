@@ -44,83 +44,78 @@
     </style>
   </head>
   <body>
-    <h1>REST API Demo</h1>
+    <h1>REST API Demo Cả 6 Nguyên Tắc Vận Hành</h1>
 
     <div class="section" id="c2-client-server">
       <h3>2. Client-Server (Separation of Concerns)</h3>
-      <p>
-        Hai bên giao tiếp với nhau bằng URL (API). Bạn ấn nút dưới đây để Client móc Data từ Server.
-      </p>
+      <p>Hai bên giao tiếp với nhau bằng URL (API). Phân tầng rõ rệt.</p>
       <button onclick="fetchBasicData()">Lấy Data cơ bản</button>
       <pre id="client-server-out">Chưa có Data.</pre>
     </div>
 
     <div class="section" id="c1-uniform">
       <h3>1. Uniform Interface & HATEOAS</h3>
-      <p>
-        Server phản hồi Response không chỉ chứa Data, mà kèm cả các Link điều hướng (HATEOAS). 
-      </p>
+      <p>Server phản hồi Data cùng các Link điều hướng (HATEOAS).</p>
       <button onclick="fetchUniformData()">GET /api/products</button>
       <pre id="uniform-out">Khong co gi hien thi.</pre>
     </div>
 
     <div class="section" id="c3-stateless">
       <h3>3. Stateless</h3>
-      <p>
-        Mô hình xác thực không lưu trữ Trạng thái. Đăng nhập 1 lần lấy Token, sau đó gắn Token vào Header để chứng minh thân phận ở từng nhịp gửi. 
-      </p>
+      <p>Xác thực không lưu trạng thái qua JWT Token thay vì Session.</p>
       <button onclick="loginAndGetToken()">POST /api/login (Lấy Token)</button>
       <span class="secret-token" id="token-display">Chưa có Token...</span>
-      <button onclick="fetchSecureData()">GET /api/secure-data (Đính kèm Token)</button>
+      <button onclick="fetchSecureData()">GET /api/secure-data (Kèm Token)</button>
       <pre id="stateless-out">Khong co gi hien thi.</pre>
     </div>
 
     <div class="section" id="c4-cache">
       <h3>4. Cacheable (ETag & Cache-Control)</h3>
-      <p>
-        Lần lưu đầu mang JSON và mã ETag về. Lần hai gửi lên Server mã ETag cũ để soi. Trùng => Cắt mạng tiết kiệm Bandwidth (HTTP 304). 
-      </p>
-      <button onclick="fetchProductEtag()">
-        GET /api/product/1 (Thử ấn nhiều lần liên tục để xem Nhận mã 304).
-      </button>
+      <p>Gửi lại ETag cũ để soi. Trùng => Cắt mạng tiết kiệm Bandwidth (HTTP 304).</p>
+      <button onclick="fetchProductEtag()">GET /api/product/1</button>
       <pre id="etag-out">Khong co gi hien thi.</pre>
     </div>
 
+    <div class="section" id="c5-layered">
+      <h3>5. Layered System (Hệ thống phân lớp)</h3>
+      <p>Browser có thể soi thấy dấu vết các tầng Middleware bảo vệ Proxy (CORS Headers) đằng sau mà không chạm trực tiếp vào Core app.</p>
+      <button onclick="fetchOptionsHeaders()">OPTIONS /api/products (Lấy Header Cấu trúc mạng)</button>
+      <pre id="layered-out">Khong co gi hien thi.</pre>
+    </div>
+
+    <div class="section" id="c6-code">
+      <h3>6. Code on Demand (Tùy chọn kéo Function về thực thi)</h3>
+      <p>Nhận Code thay cho nhận Data để nhồi giao diện động.</p>
+      <button onclick="loadCodeOnDemand()">Kéo Code JS API Server -> Trình duyệt HTML</button>
+      <!-- Nút này ban đầu lỗi. Chỉ sau khi load Code từ Server, Client mới hiểu hàm `showGreeting()` -->
+      <button onclick="if (window.showGreeting) window.showGreeting(); else alert('Lỗi! Chưa tải Code rảnh từ Server!');">
+        TEST KẾT QUẢ CODE SERVER
+      </button>
+    </div>
+
     <script>
-      // --- 2. Client-Server ---
-      async function fetchBasicData() { }
+      // ... (Phần 1 đến 4 code ở trước)
+      
+      // --- 5. Layered System ---
+      // Phát ra request thăm dò biên mạng xem có Firewall/CORS từ Web Server trước không
+      async function fetchOptionsHeaders() {
+        const res = await fetch("/api/products", { method: "OPTIONS" });
+        let headersData = "";
+        res.headers.forEach((val, name) => { headersData += `${name}: ${val}\n`; });
+        document.getElementById("layered-out").textContent =
+          `STATUS: ${res.status}\n=== Lớp biên Middleware/Proxy ngầm trả ===\n${headersData}`;
+      }
 
-      // --- 1. Uniform Interface ---
-      async function fetchUniformData() { }
+      // --- 6. Code on Demand ---
+      // Tải và tiêm thẳng Mã JS từ Web API qua DOM Document
+      async function loadCodeOnDemand() {
+        const res = await fetch("/api/get-dynamic-script");
+        const scriptCode = await res.text();
 
-      // --- 3. Stateless ---
-      let jwtToken = "";
-      async function loginAndGetToken() { }
-      async function fetchSecureData() { }
-
-      // --- 4. Cacheable ---
-      let latestEtag = "";
-      async function fetchProductEtag() {
-        const headers = {};
-        
-        // Đính kèm Etag cũ lên Header `If-None-Match`
-        if (latestEtag) headers["If-None-Match"] = latestEtag; 
-
-        // Gọi thử lần 2 cùng một Product
-        const res = await fetch("/api/product/1", { headers });
-
-        // Nếu Server bảo "Tao biết bài này chưa đổi", Server trả 304 liền lập tức, băng thông tiết kiệm bằng 0
-        if (res.status === 304) {
-          document.getElementById("etag-out").textContent =
-            `=> [CACHE HIT]: Server trả Status 304 Not Modified.\nClient TỰ HIỂU và tự móc DATA CŨ TỪ Ổ CỨNG TRÌNH DUYỆT ra chạy do ETag 2 bên ăn khớp!`;
-          return;
-        }
-
-        // Lần đầu tải mới 
-        latestEtag = res.headers.get("ETag");
-        const data = await res.json();
-        document.getElementById("etag-out").textContent =
-          `[MỚI] Mã trả về (200 OK).\nETag của Cục Data này là: ${latestEtag}\nData thật: ${JSON.stringify(data)}`;
+        const tag = document.createElement("script");
+        tag.textContent = scriptCode;
+        document.body.appendChild(tag);
+        alert("Bơm mã JS lạ từ Server thành công. Hãy bấm thử Test Code.");
       }
     </script>
   </body>
