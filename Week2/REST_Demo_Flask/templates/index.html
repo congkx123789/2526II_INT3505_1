@@ -33,6 +33,14 @@
       }
       button:hover { background-color: #2980b9; }
       pre { background: #eee; padding: 10px; border-radius: 4px; font-size: 14px; }
+      .secret-token {
+        display: block;
+        word-break: break-all;
+        font-family: monospace;
+        font-size: 12px;
+        color: #e74c3c;
+        margin-top: 5px;
+      }
     </style>
   </head>
   <body>
@@ -51,25 +59,61 @@
       <h3>1. Uniform Interface & HATEOAS</h3>
       <p>
         Server phản hồi Response không chỉ chứa Data, mà kèm cả các Link điều hướng (HATEOAS). 
-        Client nhờ đọc các thông tin tự mô tả này mà biết cách tự suy luận gọi tiếp `POST /api/products`.
       </p>
       <button onclick="fetchUniformData()">GET /api/products</button>
       <pre id="uniform-out">Khong co gi hien thi.</pre>
     </div>
 
+    <div class="section" id="c3-stateless">
+      <h3>3. Stateless</h3>
+      <p>
+        Mô hình xác thực không lưu trữ Trạng thái. Đăng nhập 1 lần lấy Token, sau đó gắn Token vào Header để chứng minh thân phận ở từng nhịp gửi. 
+      </p>
+      <button onclick="loginAndGetToken()">POST /api/login (Lấy Token)</button>
+      <span class="secret-token" id="token-display">Chưa có Token...</span>
+      <button onclick="fetchSecureData()">GET /api/secure-data (Đính kèm Token)</button>
+      <pre id="stateless-out">Khong co gi hien thi.</pre>
+    </div>
+
     <script>
       // --- 2. Client-Server ---
       async function fetchBasicData() {
-        // ... (demo basic fetch)
+        // ...
       }
 
       // --- 1. Uniform Interface ---
       async function fetchUniformData() {
-        const res = await fetch("/api/products");
+        // ...
+      }
+
+      // --- 3. Stateless ---
+      let jwtToken = "";
+      
+      async function loginAndGetToken() {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: "admin" }),
+        });
         const data = await res.json();
+        jwtToken = data.token;
+        document.getElementById("token-display").textContent = "Phiên Client đang cầm Token JWT: " + jwtToken;
+      }
+
+      async function fetchSecureData() {
+        if (!jwtToken) {
+          alert("Lỗi bảo mật! Cần lấy Token trước khi móc API này.");
+          return;
+        }
         
-        // Render toàn bộ JSON bao gồm cả mảng 'links' HATEOAS
-        document.getElementById("uniform-out").textContent = JSON.stringify(data, null, 2);
+        // Client đính JWT Token vào Authorization Header theo chuẩn Bearer 
+        const res = await fetch("/api/secure-data", {
+          headers: { Authorization: `Bearer ${jwtToken}` },
+        });
+        
+        const data = await res.json();
+        document.getElementById("stateless-out").textContent =
+          `Mã Phản hồi Server (Status): ${res.status}\nData Giải mã: ${JSON.stringify(data, null, 2)}`;
       }
     </script>
   </body>
