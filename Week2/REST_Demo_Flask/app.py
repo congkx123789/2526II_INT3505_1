@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
 
@@ -11,21 +11,37 @@ db_products = [
 # ==========================================================
 # 2. Client-Server (Separation of Concerns)
 # ==========================================================
-# Giao diện UI (Frontend/Client) được phục vụ độc lập và xử lý riêng rẽ 
-# với dữ liệu API (Backend/Server).
 @app.route('/')
 def index():
-    # Phục vụ file giao diện HTML thuần túy. 
-    # File này chứa Javascript tự gọi Data về sau.
     return render_template('index.html')
 
+# ==========================================================
+# 1. Uniform Interface & HATEOAS
+# ==========================================================
+# Cung cấp giao diện đồng nhất: '/api/products' (Dùng chung 1 Danh từ, khác Động từ GET/POST)
 @app.route('/api/products', methods=['GET'])
 def get_products():
     """ 
-    API Cung cấp dữ liệu JSON thuần túy thay vì trả HTML chứa Data.
-    Frontend sẽ nhận chuỗi JSON này để ráp giao diện.
+    HATEOAS: Phản hồi không chỉ có Data, mà có đính kèm các hyperlink 
+    hướng dẫn Client hành động tiếp theo có thể làm gì với Resource này.
     """
-    return jsonify(db_products), 200
+    response_data = {
+        "data": db_products,
+        "links": [
+            {"rel": "self", "href": "/api/products", "method": "GET"},
+            {"rel": "add_product", "href": "/api/products", "method": "POST"}
+        ]
+    }
+    return jsonify(response_data), 200
+
+@app.route('/api/products', methods=['POST'])
+def add_product():
+    """
+    Sử dụng đúng HTTP Method POST để tạo mới tài nguyên thay vì dùng Endpoint lạ.
+    """
+    new_product = request.json
+    db_products.append(new_product)
+    return jsonify({"message": "Product created successfully", "product": new_product}), 201
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
