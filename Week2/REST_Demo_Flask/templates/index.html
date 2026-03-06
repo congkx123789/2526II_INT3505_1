@@ -94,7 +94,65 @@
     </div>
 
     <script>
-      // ... (Phần 1 đến 4 code ở trước)
+      // --- 2. Client-Server ---
+      async function fetchBasicData() {
+        const res = await fetch("/api/products");
+        const data = await res.json();
+        document.getElementById("client-server-out").textContent = "Data API:\n" + JSON.stringify(data, null, 2);
+      }
+
+      // --- 1. Uniform Interface ---
+      async function fetchUniformData() {
+        const res = await fetch("/api/products");
+        const data = await res.json();
+        document.getElementById("uniform-out").textContent = JSON.stringify(data, null, 2);
+      }
+
+      // --- 3. Stateless ---
+      let jwtToken = "";
+      async function loginAndGetToken() {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: "admin" }),
+        });
+        const data = await res.json();
+        jwtToken = data.token;
+        document.getElementById("token-display").textContent = "Phiên Client đang cầm Token JWT: " + jwtToken;
+      }
+
+      async function fetchSecureData() {
+        if (!jwtToken) {
+          alert("Lỗi bảo mật! Cần lấy Token trước khi móc API này.");
+          return;
+        }
+        const res = await fetch("/api/secure-data", {
+          headers: { Authorization: `Bearer ${jwtToken}` },
+        });
+        const data = await res.json();
+        document.getElementById("stateless-out").textContent =
+          `Mã Phản hồi Server (Status): ${res.status}\nData Giải mã: ${JSON.stringify(data, null, 2)}`;
+      }
+
+      // --- 4. Cacheable ---
+      let latestEtag = "";
+      async function fetchProductEtag() {
+        const headers = {};
+        if (latestEtag) headers["If-None-Match"] = latestEtag; 
+
+        const res = await fetch("/api/product/1", { headers });
+
+        if (res.status === 304) {
+          document.getElementById("etag-out").textContent =
+            `=> [CACHE HIT]: Server trả Status 304 Not Modified.\nClient TỰ HIỂU và tự móc DATA CŨ TỪ Ổ CỨNG TRÌNH DUYỆT ra chạy do ETag 2 bên ăn khớp!`;
+          return;
+        }
+
+        latestEtag = res.headers.get("ETag");
+        const data = await res.json();
+        document.getElementById("etag-out").textContent =
+          `[MỚI] Mã trả về (200 OK).\nETag của Cục Data này là: ${latestEtag}\nData thật: ${JSON.stringify(data)}`;
+      }
       
       // --- 5. Layered System ---
       // Phát ra request thăm dò biên mạng xem có Firewall/CORS từ Web Server trước không
