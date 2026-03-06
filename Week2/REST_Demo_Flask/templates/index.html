@@ -32,7 +32,7 @@
         transition: 0.3s;
       }
       button:hover { background-color: #2980b9; }
-      pre { background: #eee; padding: 10px; border-radius: 4px; font-size: 14px; }
+      pre { background: #eee; padding: 10px; border-radius: 4px; font-size: 14px; white-space: pre-wrap;}
       .secret-token {
         display: block;
         word-break: break-all;
@@ -75,45 +75,52 @@
       <pre id="stateless-out">Khong co gi hien thi.</pre>
     </div>
 
+    <div class="section" id="c4-cache">
+      <h3>4. Cacheable (ETag & Cache-Control)</h3>
+      <p>
+        Lần lưu đầu mang JSON và mã ETag về. Lần hai gửi lên Server mã ETag cũ để soi. Trùng => Cắt mạng tiết kiệm Bandwidth (HTTP 304). 
+      </p>
+      <button onclick="fetchProductEtag()">
+        GET /api/product/1 (Thử ấn nhiều lần liên tục để xem Nhận mã 304).
+      </button>
+      <pre id="etag-out">Khong co gi hien thi.</pre>
+    </div>
+
     <script>
       // --- 2. Client-Server ---
-      async function fetchBasicData() {
-        // ...
-      }
+      async function fetchBasicData() { }
 
       // --- 1. Uniform Interface ---
-      async function fetchUniformData() {
-        // ...
-      }
+      async function fetchUniformData() { }
 
       // --- 3. Stateless ---
       let jwtToken = "";
-      
-      async function loginAndGetToken() {
-        const res = await fetch("/api/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: "admin" }),
-        });
-        const data = await res.json();
-        jwtToken = data.token;
-        document.getElementById("token-display").textContent = "Phiên Client đang cầm Token JWT: " + jwtToken;
-      }
+      async function loginAndGetToken() { }
+      async function fetchSecureData() { }
 
-      async function fetchSecureData() {
-        if (!jwtToken) {
-          alert("Lỗi bảo mật! Cần lấy Token trước khi móc API này.");
+      // --- 4. Cacheable ---
+      let latestEtag = "";
+      async function fetchProductEtag() {
+        const headers = {};
+        
+        // Đính kèm Etag cũ lên Header `If-None-Match`
+        if (latestEtag) headers["If-None-Match"] = latestEtag; 
+
+        // Gọi thử lần 2 cùng một Product
+        const res = await fetch("/api/product/1", { headers });
+
+        // Nếu Server bảo "Tao biết bài này chưa đổi", Server trả 304 liền lập tức, băng thông tiết kiệm bằng 0
+        if (res.status === 304) {
+          document.getElementById("etag-out").textContent =
+            `=> [CACHE HIT]: Server trả Status 304 Not Modified.\nClient TỰ HIỂU và tự móc DATA CŨ TỪ Ổ CỨNG TRÌNH DUYỆT ra chạy do ETag 2 bên ăn khớp!`;
           return;
         }
-        
-        // Client đính JWT Token vào Authorization Header theo chuẩn Bearer 
-        const res = await fetch("/api/secure-data", {
-          headers: { Authorization: `Bearer ${jwtToken}` },
-        });
-        
+
+        // Lần đầu tải mới 
+        latestEtag = res.headers.get("ETag");
         const data = await res.json();
-        document.getElementById("stateless-out").textContent =
-          `Mã Phản hồi Server (Status): ${res.status}\nData Giải mã: ${JSON.stringify(data, null, 2)}`;
+        document.getElementById("etag-out").textContent =
+          `[MỚI] Mã trả về (200 OK).\nETag của Cục Data này là: ${latestEtag}\nData thật: ${JSON.stringify(data)}`;
       }
     </script>
   </body>
