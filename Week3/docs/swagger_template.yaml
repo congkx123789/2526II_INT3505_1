@@ -1,0 +1,353 @@
+openapi: 3.0.3
+info:
+  title: API Design Best Practice Template
+  description: |
+    Template Swagger/OpenAPI dùng cho thực hành thiết kế API.
+    Sinh viên có thể clone file này và điền vào các endpoint của nhóm mình.
+  version: "1.0.0"
+  contact:
+    name: INT3505 - SOA Course
+servers:
+  - url: https://api.example.com/v1
+    description: Production server
+  - url: http://localhost:5000/good/v1
+    description: Local development server
+
+# ────────────────────────────────────────────────
+# PATHS – Định nghĩa các Endpoints
+# ────────────────────────────────────────────────
+paths:
+  /users:
+    get:
+      summary: Lấy danh sách người dùng
+      description: Trả về danh sách users có hỗ trợ phân trang và lọc.
+      operationId: listUsers
+      tags:
+        - Users
+      parameters:
+        - name: page
+          in: query
+          description: Số trang (bắt đầu từ 1)
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          description: Số bản ghi mỗi trang
+          schema:
+            type: integer
+            default: 10
+            maximum: 100
+        - name: name
+          in: query
+          description: Lọc theo tên (tìm kiếm gần đúng)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserListResponse"
+        "400":
+          description: Tham số không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    post:
+      summary: Tạo người dùng mới
+      operationId: createUser
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+      responses:
+        "201":
+          description: Tạo thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleUserResponse"
+        "400":
+          description: Dữ liệu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Email đã tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/{user_id}:
+    get:
+      summary: Lấy thông tin một người dùng
+      operationId: getUser
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: ID của người dùng
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleUserResponse"
+        "404":
+          description: Không tìm thấy user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      summary: Cập nhật toàn bộ thông tin người dùng
+      operationId: updateUser
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleUserResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      summary: Xóa người dùng
+      operationId: deleteUser
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Xóa thành công (không có body)
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /users/{user_id}/orders:
+    get:
+      summary: Lấy danh sách đơn hàng của một user
+      description: Minh họa quan hệ phân cấp (hierarchy) giữa User và Order.
+      operationId: listUserOrders
+      tags:
+        - Orders
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: Lọc theo trạng thái đơn hàng
+          schema:
+            type: string
+            enum: [pending, completed, cancelled]
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderListResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+# ────────────────────────────────────────────────
+# COMPONENTS – Tái sử dụng Schema & Response
+# ────────────────────────────────────────────────
+components:
+  schemas:
+    # ── Request Schemas ──
+    CreateUserRequest:
+      type: object
+      required: [username, email_address, phone_number]
+      properties:
+        username:
+          type: string
+          example: "nguyenvana"
+        email_address:
+          type: string
+          format: email
+          example: "vana@gmail.com"
+        phone_number:
+          type: string
+          example: "0901234567"
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        email_address:
+          type: string
+          format: email
+        phone_number:
+          type: string
+
+    # ── Data Schemas ──
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: "nguyenvana"
+        email_address:
+          type: string
+          example: "vana@gmail.com"
+        phone_number:
+          type: string
+          example: "0901234567"
+        is_active:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "ord_123"
+        status:
+          type: string
+          enum: [pending, completed, cancelled]
+        total_amount:
+          type: number
+          example: 150000
+        created_at:
+          type: string
+          format: date-time
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 10
+        total_records:
+          type: integer
+          example: 50
+        total_pages:
+          type: integer
+          example: 5
+        has_next:
+          type: boolean
+        has_prev:
+          type: boolean
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "RESOURCE_NOT_FOUND"
+        message:
+          type: string
+          example: "User with id '99' does not exist."
+        details:
+          nullable: true
+
+    # ── Response Envelope Schemas ──
+    SingleUserResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: "#/components/schemas/User"
+
+    UserListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+
+    OrderListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          $ref: "#/components/schemas/Error"
+
+  responses:
+    NotFound:
+      description: Tài nguyên không tồn tại
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+tags:
+  - name: Users
+    description: Quản lý người dùng
+  - name: Orders
+    description: Quản lý đơn hàng
