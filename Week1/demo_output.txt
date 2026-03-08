@@ -1,0 +1,85 @@
+
+============================================================
+  DEMO 1: PokéAPI — GET thông tin Pikachu
+============================================================
+API này trả về dữ liệu về các nhân vật Pokemon.
+Không cần đăng ký. Hoàn toàn miễn phí.
+
+>>> Client gửi: GET https://pokeapi.co/api/v2/pokemon/pikachu
+<<< Server trả về Status: 200
+<<< Body (JSON - rút gọn):
+{
+  "name": "pikachu",
+  "id": 25,
+  "height": 4,
+  "weight": 60,
+  "types": [
+    "electric"
+  ],
+  "base_experience": 112
+}
+
+============================================================
+  DEMO 2: REST Countries — GET thông tin Việt Nam
+============================================================
+API này trả về thông tin địa lý, dân số, tiền tệ của các quốc gia.
+Không cần đăng ký. Không cần API Key.
+
+>>> Client gửi: GET https://restcountries.com/v3.1/name/vietnam
+<<< Server trả về Status: 200
+<<< Body (JSON - rút gọn):
+{
+  "name": "Socialist Republic of Vietnam",
+  "capital": "Hanoi",
+  "population": 101343800,
+  "area_km2": 331212.0,
+  "currencies": [
+    "VND"
+  ],
+  "languages": [
+    "Vietnamese"
+  ],
+  "region": "Asia"
+}
+
+============================================================
+  DEMO 3: JSONPlaceholder — GET bài viết & POST tạo mới
+============================================================
+API này mô phỏng một Blog API để học viên test mà không dụng database thật.
+
+>>> Client gửi: GET https://jsonplaceholder.typicode.com/posts/1
+<<< Status: 200
+<<< Body:
+{
+  "userId": 1,
+  "id": 1,
+  "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+  "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
+}
+
+>>> Client gửi: POST https://jsonplaceholder.typicode.com/posts
+>>> Body gửi đi (JSON):
+{
+  "title": "Bài học API đầu tiên",
+  "body": "Hôm nay tôi học cách gọi REST API bằng Python!",
+  "userId": 1
+}
+<<< Status: 201  ← 201 Created có nghĩa là tạo thành công!
+<<< Body Server trả về:
+{
+  "title": "Bài học API đầu tiên",
+  "body": "Hôm nay tôi học cách gọi REST API bằng Python!",
+  "userId": 1,
+  "id": 101
+}
+
+============================================================
+  DEMO KẾT THÚC - Tất cả API đều chạy thành công!
+============================================================
+
+Câu hỏi thảo luận với học viên:
+  1. Tại sao POST /posts trả về 201 thay vì 200?
+  2. Naming convention: Tại sao dùng /pokemon/pikachu (danh từ số nhiều)?
+  3. Response JSON có cấu trúc gì? Trường nào quan trọng?
+  4. Nếu API Key bị lộ, chuyện gì có thể xảy ra?
+
