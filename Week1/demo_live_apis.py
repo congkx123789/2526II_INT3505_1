@@ -1,134 +1,117 @@
 """
-=============================================================
-WEEK 1 - DEMO TRỰC QUAN: Gọi API Thật Ngay Trên Lớp
-=============================================================
-Mục tiêu:
- - Học viên thấy được hình hài thực tế của 1 API request/response
- - Không cần đăng ký, không cần API Key
- - Dễ đọc, dễ hiểu
+WEEK 1 - LIVE DEMO: Public REST APIs
+=====================================
+Goals:
+ - Visualize real-world API requests & responses.
+ - Demonstrate zero-auth public endpoints.
+ - Observe JSON data structures.
 
-Cách chạy:
+Usage:
  pip install requests
  python demo_live_apis.py
-=============================================================
+=====================================
 """
 
 import requests
 import json
 
-def print_section(title):
-    print(f"\n{'='*60}")
-    print(f"  {title}")
-    print(f"{'='*60}")
+def print_header(title):
+    print(f"\n{'='*60}\n  {title}\n{'='*60}")
 
-def print_request(method, url):
-    print(f"\n>>> Client gửi: {method} {url}")
+def log_request(method, url, payload=None):
+    print(f"\n[REQ] {method} {url}")
+    if payload:
+        print(f"BODY: {json.dumps(payload, indent=2)}")
 
-def print_response(response):
-    print(f"<<< Server trả về Status: {response.status_code}")
-    print(f"<<< Content-Type: {response.headers.get('Content-Type', 'N/A')}")
-    data = response.json()
-    print(f"<<< Body (JSON):\n{json.dumps(data, indent=2, ensure_ascii=False)[:600]}")
-    if len(json.dumps(data)) > 600:
-        print("    ... (cắt bớt để đọc dễ hơn)")
-
+def log_response(res, data=None):
+    print(f"[RES] Status: {res.status_code} | Content-Type: {res.headers.get('Content-Type', 'N/A')}")
+    output = data if data else res.json()
+    print(f"BODY:\n{json.dumps(output, indent=2, ensure_ascii=False)[:800]}")
+    if len(json.dumps(output)) > 800:
+        print("    ... (truncated for readability)")
 
 # -------------------------------------------------------
-# DEMO 1: PokéAPI - REST API chuẩn mực, không cần Auth
+# DEMO 1: PokéAPI (Standard REST)
 # -------------------------------------------------------
-print_section("DEMO 1: PokéAPI — GET thông tin Pikachu")
-print("API này trả về dữ liệu về các nhân vật Pokemon.")
-print("Không cần đăng ký. Hoàn toàn miễn phí.")
-
+print_header("DEMO 1: PokéAPI - Fetching Pikachu")
 url1 = "https://pokeapi.co/api/v2/pokemon/pikachu"
-print_request("GET", url1)
+log_request("GET", url1)
 
 try:
     res1 = requests.get(url1, timeout=10)
-    # Chỉ lấy 1 số field đơn giản để demo
-    data1 = res1.json()
-    simple1 = {
-        "name": data1["name"],
-        "id": data1["id"],
-        "height": data1["height"],
-        "weight": data1["weight"],
-        "types": [t["type"]["name"] for t in data1["types"]],
-        "base_experience": data1["base_experience"]
+    raw_data = res1.json()
+    # Filter for key fields to keep demo clean
+    display_data = {
+        "name": raw_data["name"],
+        "id": raw_data["id"],
+        "height": raw_data["height"],
+        "weight": raw_data["weight"],
+        "types": [t["type"]["name"] for t in raw_data["types"]],
+        "base_xp": raw_data["base_experience"]
     }
-    print(f"<<< Server trả về Status: {res1.status_code}")
-    print(f"<<< Body (JSON - rút gọn):\n{json.dumps(simple1, indent=2, ensure_ascii=False)}")
+    log_response(res1, data=display_data)
 except Exception as e:
-    print(f"Lỗi: {e}")
-
+    print(f"Error: {e}")
 
 # -------------------------------------------------------
-# DEMO 2: REST Countries - Tra cứu thông tin quốc gia
+# DEMO 2: REST Countries (Geo Data)
 # -------------------------------------------------------
-print_section("DEMO 2: REST Countries — GET thông tin Việt Nam")
-print("API này trả về thông tin địa lý, dân số, tiền tệ của các quốc gia.")
-print("Không cần đăng ký. Không cần API Key.")
-
+print_header("DEMO 2: REST Countries - Querying Vietnam")
 url2 = "https://restcountries.com/v3.1/name/vietnam"
-print_request("GET", url2)
+log_request("GET", url2)
 
 try:
     res2 = requests.get(url2, timeout=10)
-    data2 = res2.json()[0]
-    simple2 = {
-        "name": data2["name"]["official"],
-        "capital": data2.get("capital", ["N/A"])[0],
-        "population": data2["population"],
-        "area_km2": data2["area"],
-        "currencies": list(data2.get("currencies", {}).keys()),
-        "languages": list(data2.get("languages", {}).values()),
-        "region": data2["region"]
+    raw_data = res2.json()[0]
+    display_data = {
+        "name": raw_data["name"]["official"],
+        "capital": raw_data.get("capital", ["N/A"])[0],
+        "pop": raw_data["population"],
+        "area_km2": raw_data["area"],
+        "currencies": list(raw_data.get("currencies", {}).keys()),
+        "languages": list(raw_data.get("languages", {}).values()),
+        "region": raw_data["region"]
     }
-    print(f"<<< Server trả về Status: {res2.status_code}")
-    print(f"<<< Body (JSON - rút gọn):\n{json.dumps(simple2, indent=2, ensure_ascii=False)}")
+    log_response(res2, data=display_data)
 except Exception as e:
-    print(f"Lỗi: {e}")
-
+    print(f"Error: {e}")
 
 # -------------------------------------------------------
-# DEMO 3: JSONPlaceholder - Fake API để test (CRUD)
+# DEMO 3: JSONPlaceholder (CRUD Simulation)
 # -------------------------------------------------------
-print_section("DEMO 3: JSONPlaceholder — GET bài viết & POST tạo mới")
-print("API này mô phỏng một Blog API để học viên test mà không dụng database thật.")
+print_header("DEMO 3: JSONPlaceholder - Blog Operations")
 
-# GET - Lấy bài viết #1
-url3_get = "https://jsonplaceholder.typicode.com/posts/1"
-print_request("GET", url3_get)
+# GET - Read resource
+url_get = "https://jsonplaceholder.typicode.com/posts/1"
+log_request("GET", url_get)
 try:
-    res3 = requests.get(url3_get, timeout=10)
-    print(f"<<< Status: {res3.status_code}")
-    print(f"<<< Body:\n{json.dumps(res3.json(), indent=2, ensure_ascii=False)}")
+    res_get = requests.get(url_get, timeout=10)
+    log_response(res_get)
 except Exception as e:
-    print(f"Lỗi: {e}")
+    print(f"Error: {e}")
 
-# POST - Tạo bài viết mới
-url3_post = "https://jsonplaceholder.typicode.com/posts"
+# POST - Create resource
+url_post = "https://jsonplaceholder.typicode.com/posts"
 new_post = {
-    "title": "Bài học API đầu tiên",
-    "body": "Hôm nay tôi học cách gọi REST API bằng Python!",
+    "title": "My First API Lesson",
+    "body": "Learning REST API calls with Python today!",
     "userId": 1
 }
-print_request("POST", url3_post)
-print(f">>> Body gửi đi (JSON):\n{json.dumps(new_post, indent=2, ensure_ascii=False)}")
+log_request("POST", url_post, payload=new_post)
 try:
-    res3_post = requests.post(url3_post, json=new_post, timeout=10)
-    print(f"<<< Status: {res3_post.status_code}  ← 201 Created có nghĩa là tạo thành công!")
-    print(f"<<< Body Server trả về:\n{json.dumps(res3_post.json(), indent=2, ensure_ascii=False)}")
+    res_post = requests.post(url_post, json=new_post, timeout=10)
+    log_response(res_post)
 except Exception as e:
-    print(f"Lỗi: {e}")
-
+    print(f"Error: {e}")
 
 print("\n" + "="*60)
-print("  DEMO KẾT THÚC - Tất cả API đều chạy thành công!")
+print("  DEMO COMPLETE - All endpoints responded successfully.")
 print("="*60)
 print("""
-Câu hỏi thảo luận với học viên:
-  1. Tại sao POST /posts trả về 201 thay vì 200?
-  2. Naming convention: Tại sao dùng /pokemon/pikachu (danh từ số nhiều)?
-  3. Response JSON có cấu trúc gì? Trường nào quan trọng?
-  4. Nếu API Key bị lộ, chuyện gì có thể xảy ra?
+Discussion Points:
+  1. Why did POST return 201 instead of 200?
+  2. Naming: Why use '/pokemon/pikachu' (plural nouns)?
+  3. JSON Structure: Which fields were most critical for the UI?
+  4. Security: What happens if an API Key is exposed in logs?
 """)
+
