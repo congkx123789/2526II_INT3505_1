@@ -3,6 +3,7 @@ from flask_cors import CORS
 import jwt
 import json
 import hashlib
+from functools import wraps
 
 app = Flask(__name__)
 
@@ -59,17 +60,36 @@ def login():
         return jsonify({'token': token}), 200
     return jsonify({'message': 'Invalid credentials'}), 401
 
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'Authorization' in request.headers:
+            auth_header = request.headers['Authorization']
+            if auth_header.startswith("Bearer "):
+                token = auth_header.split(" ")[1]
+        
+        if not token:
+            return jsonify({'message': 'Token is missing!'}), 401
+        
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+            # You could pass the decoded user info to the function if needed
+            # current_user = data['user']
+        except Exception as e:
+            return jsonify({'message': 'Token is invalid!', 'error': str(e)}), 401
+            
+        return f(*args, **kwargs)
+    
+    return decorated
+
 @app.route('/api/secure-data', methods=['GET'])
+@token_required
 def secure_data():
-    token = request.headers.get('Authorization')
-    if not token:
-        return jsonify({'message': 'Token is missing!'}), 401
-    try:
-        token = token.split(" ")[1] 
-        decoded = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-        return jsonify({'message': 'Welcome admin!', 'secret_data': 'Phi trạng thái là Server quên bạn ngay sau khi gửi xong Request.'})
-    except Exception as e:
-        return jsonify({'message': 'Token is invalid!', 'error': str(e)}), 401
+    return jsonify({
+        'message': 'Welcome admin!', 
+        'secret_data': 'Phi trạng thái là Server quên bạn ngay sau khi gửi xong Request.'
+    })
 
 # ==========================================================
 # 4. Cacheable
