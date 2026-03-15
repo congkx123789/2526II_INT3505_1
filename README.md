@@ -18,6 +18,14 @@
   - Minh họa trực quan vấn đề **N+1 Query** và giải pháp **Eager Loading** (`?_expand=...`).
 
 ### Week 3: API Design Best Practices
+
 - So sánh thiết kế API: "Bad" vs "Good" design.
 - Áp dụng Versioning, Envelope patterns, và Pagination logic.
 - Quản lý resource hierarchy và partial updates (PATCH).
+
+### Week 4: API Specification & OpenAPI
+
+- Tài liệu hóa API theo chuẩn **OpenAPI Specification (OAS)**.
+- Demo tự động sinh Swagger UI từ Python Flask (sử dụng Flasgger).
+- Xây dựng Schema chi tiết cho đối tượng `Book` (bao gồm trường `genre`).
+- Kiểm thử tự động (Automated Testing) với bộ test case cho các CRUD operations.
