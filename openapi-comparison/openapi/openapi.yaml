@@ -1,0 +1,44 @@
+openapi: 3.0.0
+info:
+  title: Quản lý Thư viện API
+  version: 1.0.0
+  description: API quản lý thư viện dùng OpenAPI Specification
+paths:
+  /books:
+    get:
+      summary: Lấy danh sách sách
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+    post:
+      summary: Thêm sách mới
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '201':
+          description: Tạo thành công
+
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        author:
+          type: string
+      required:
+        - title
+        - author

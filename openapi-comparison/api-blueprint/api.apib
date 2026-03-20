@@ -1,0 +1,27 @@
+FORMAT: 1A
+HOST: http://api.library.com
+
+# Quản lý Thư viện API
+API mô tả ví dụ quản lý thư viện viết bằng Markdown với API Blueprint.
+
+## Books Collection [/books]
+
+### Lấy danh sách sách [GET]
+
++ Response 200 (application/json)
+    + Attributes (array[Book])
+
+### Thêm sách mới [POST]
+
++ Request (application/json)
+    + Attributes (Book)
+
++ Response 201 (application/json)
+    + Attributes (Book)
+
+# Data Structures
+
+## Book (object)
++ id: B001 (string, optional)
++ title: Sapiens (string, required)
++ author: Yuval Noah Harari (string, required)
