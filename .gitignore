@@ -1,11 +1,19 @@
+# IDEs
+.vscode/
+.idea/
+.gemini/
+
+# Environments
+env/
+venv/
+.env
+.env.*
+.venv/
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
-env/
-venv/
-.env/
-.venv/
 .pytest_cache/
 
 # Node.js
@@ -18,14 +26,7 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# IDEs
-.vscode/
-.idea/
-.gemini/
-
 # Security, API Keys, and Environment Variables
-.env
-.env.*
 *.local
 *.key
 *.pem
