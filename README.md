@@ -29,3 +29,4 @@
 - Demo tự động sinh Swagger UI từ Python Flask (sử dụng Flasgger).
 - Xây dựng Schema chi tiết cho đối tượng `Book` (bao gồm trường `genre`).
 - Kiểm thử tự động (Automated Testing) với bộ test case cho các CRUD operations.
+- **Live Demo (Express API):** [https://expressdemo.vercel.app/api-docs/](https://expressdemo.vercel.app/api-docs/)
