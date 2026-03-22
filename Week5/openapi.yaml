@@ -1,0 +1,294 @@
+openapi: 3.0.3
+info:
+  title: Library Management API
+  description: API for managing a library including books, users, and loans.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+tags:
+  - name: Books
+    description: Book management integration
+  - name: Users
+    description: User and loan management
+paths:
+  /books:
+    get:
+      tags:
+        - Books
+      summary: Get all books
+      description: Retrieve a list of books with search, sort, and pagination.
+      parameters:
+        - name: title
+          in: query
+          description: Filter books by title
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Filter books by category
+          schema:
+            type: string
+        - name: author
+          in: query
+          description: Filter books by author
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: Sort field (e.g., -published_year for descending)
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number for pagination
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: A paginated list of books
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Book'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+    post:
+      tags:
+        - Books
+      summary: Add a new book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+      responses:
+        '201':
+          description: Book created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+  /books/{id}:
+    get:
+      tags:
+        - Books
+      summary: Get a book by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Book details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found
+  /books/{id}/authors:
+    get:
+      tags:
+        - Books
+      summary: Get authors of a specific book
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of authors for the book
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Author'
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /users/{id}/loans:
+    get:
+      tags:
+        - Users
+      summary: Get loans for a specific user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of loans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Loan'
+    post:
+      tags:
+        - Users
+      summary: Create a new loan for a user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoanInput'
+      responses:
+        '201':
+          description: Loan created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Loan'
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "b123"
+        title:
+          type: string
+          example: "Harry Potter"
+        ISBN:
+          type: string
+          example: "978-3-16-148410-0"
+        published_year:
+          type: integer
+          example: 1997
+        quantity:
+          type: integer
+          example: 5
+    BookInput:
+      type: object
+      required:
+        - title
+        - ISBN
+        - published_year
+        - quantity
+      properties:
+        title:
+          type: string
+          example: "Harry Potter"
+        ISBN:
+          type: string
+          example: "978-3-16-148410-0"
+        published_year:
+          type: integer
+          example: 1997
+        quantity:
+          type: integer
+          example: 5
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "u123"
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        register_date:
+          type: string
+          format: date
+          example: "2023-01-01"
+    Author:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "a12"
+        name:
+          type: string
+          example: "J.K. Rowling"
+    Loan:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "l456"
+        user_id:
+          type: string
+          example: "u123"
+        book_id:
+          type: string
+          example: "b123"
+        borrow_date:
+          type: string
+          format: date
+          example: "2023-10-01"
+        return_date:
+          type: string
+          format: date
+          example: "2023-10-15"
+        status:
+          type: string
+          enum: [borrowed, returned, overdue]
+          example: "borrowed"
+    LoanInput:
+      type: object
+      required:
+        - book_id
+      properties:
+        book_id:
+          type: string
+          example: "b123"
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        size:
+          type: integer
+          example: 20
+        total_items:
+          type: integer
+          example: 100
+        total_pages:
+          type: integer
+          example: 5
