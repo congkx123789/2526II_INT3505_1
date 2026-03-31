@@ -12,7 +12,7 @@ OpenAPI có bộ công cụ lớn nhất hành tinh. Để sinh code tự độn
 ### Công cụ cần thiết
 - Node.js (dùng `npx`) hoặc Java (dùng file `.jar`).
 
-### Các bước sinh thư viện Client (TypeScript) hoặc Server
+### Các bước sinh thư viện Client (TypeScript) hoặc Server  
 ```bash
 # 1. Sinh code TypeScript Client để Frontend dùng
 npx @openapitools/openapi-generator-cli generate -i openapi.yaml -g typescript-axios -o ./generated-client
