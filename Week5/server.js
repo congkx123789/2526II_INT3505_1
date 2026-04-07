@@ -1,9 +1,21 @@
 const express = require('express');
 const app = express();
-const port = 3000;
+const port = 3001;
 
 // Middleware to parse JSON body
 app.use(express.json());
+
+// Root route - Welcome message
+app.get('/', (req, res) => {
+  res.send(`
+    <h1>Welcome to Library Management API (Week 5)</h1>
+    <p>The API is running correctly. Usage:</p>
+    <ul>
+      <li><a href="/books">/books</a> - Get all books</li>
+      <li><a href="/users">/users</a> - Get all users</li>
+    </ul>
+  `);
+});
 
 // --- Mock Data (Mô phỏng Database) ---
 let authors = [

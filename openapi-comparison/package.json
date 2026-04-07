@@ -1,0 +1,19 @@
+{
+  "name": "openapi-comparison-demo",
+  "version": "1.0.0",
+  "description": "Demo comparing OpenAPI, API Blueprint, RAML and TypeSpec",
+  "scripts": {
+    "demo:openapi": "npx @redocly/cli build-docs openapi/openapi.yaml --output=outputs/openapi.html",
+    "demo:typespec-compile": "npx @typespec/compiler compile typespec/main.tsp --output-dir=outputs/typespec",
+    "demo:typespec-docs": "npx @redocly/cli build-docs outputs/typespec/openapi.json --output=outputs/typespec.html",
+    "demo:blueprint": "npx aglio -i api-blueprint/api.apib -o outputs/blueprint.html",
+    "demo:raml": "npx raml2html raml/api.raml > outputs/raml.html",
+    "demo:flask": "python flask-api/app.py",
+    "demo:all": "npm run demo:openapi && npm run demo:typespec-compile && npm run demo:typespec-docs && npm run demo:blueprint && npm run demo:raml",
+    "clean": "rimraf outputs"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "rimraf": "^5.0.0"
+  }
+}

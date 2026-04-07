@@ -3,6 +3,17 @@ from datetime import date
 
 app = Flask(__name__)
 
+@app.route('/', methods=['GET'])
+def index():
+    return """
+    <h1>Welcome to Library Management API (Week 5 - Flask)</h1>
+    <p>The API is running correctly. Usage:</p>
+    <ul>
+      <li><a href="/books">/books</a> - Get all books</li>
+      <li><a href="/users">/users</a> - Get all users</li>
+    </ul>
+    """
+
 # --- Mock Data ---
 authors = [
     {"id": "a1", "name": "J.K. Rowling"},
@@ -120,4 +131,4 @@ def get_book_authors(id):
     return jsonify([author] if author else [])
 
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(port=5001)

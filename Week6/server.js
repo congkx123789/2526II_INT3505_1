@@ -69,7 +69,8 @@ app.post('/api/login-insecure', (req, res) => {
   const user = users[username];
 
   if (user && user.password === password) {
-    const accessToken = jwt.sign({ id: user.id, username: user.username, role: user.role, scopes: user.scopes }, SECRET_KEY, { expiresIn: '15m' });
+    const accessToken = jwt.sign({ id: user.id, username: user.username, role: user.role, scopes: user.scopes }
+      , SECRET_KEY, { expiresIn: '15m' });
     const refreshToken = jwt.sign({ id: user.id }, REFRESH_SECRET_KEY, { expiresIn: '7d' });
 
     // TRẢ VỀ TOKEN TRONG BODY -> DẪN ĐẾN RỦI RO LỘ TOKEN (TOKEN LEAKAGE)
@@ -84,7 +85,8 @@ app.post('/api/login-secure', (req, res) => {
   const user = users[username];
 
   if (user && user.password === password) {
-    const accessToken = jwt.sign({ id: user.id, username: user.username, role: user.role, scopes: user.scopes }, SECRET_KEY, { expiresIn: '15m' });
+    const accessToken = jwt.sign({ id: user.id, username: user.username, role: user.role, scopes: user.scopes }
+      , SECRET_KEY, { expiresIn: '15m' });
     
     // ĐẶT TOKEN VÀO COOKIE HTTPONLY (KHÔNG THỂ BỊ JAVASCRIPT ĐỌC)
     res.cookie('access_token', accessToken, {
