@@ -1,0 +1,71 @@
+# Hướng Dẫn Thuyết Trình & Chạy Demo - Week 6: JWT & Security Audit
+
+Tài liệu này hướng dẫn chi tiết cách vận hành demo và kịch bản thuyết trình cho bài thực hành về JWT Authentication và Security Audit.
+
+---
+
+## 1. Hướng Dẫn Chạy Demo (Quick Start)
+
+1.  **Mở Terminal** tại thư mục `Week6`.
+2.  **Cài đặt thư viện**:
+    ```bash
+    npm install
+    ```
+3.  **Khởi động Server**:
+    ```bash
+    node server.js
+    ```
+4.  **Truy cập Giao diện**: Mở trình duyệt và truy cập `http://localhost:5000/index.html` (hoặc mở trực tiếp file `index.html`).
+
+---
+
+## 2. Kịch Bản Thuyết Trình (Presentation Script)
+
+### Bước 1: Giới thiệu (Introduction)
+*   **Lời dẫn:** "Hôm nay tôi sẽ trình bày về cơ chế xác thực JWT và các rủi ro bảo mật đi kèm khi lưu trữ Token trên trình duyệt."
+*   **Thao tác:** Mở giao diện demo trên trình duyệt. Chỉ vào các nút `Login`.
+
+### Bước 2: Demo Đăng nhập không an toàn (Insecure Login)
+*   **Lời dẫn:** "Đầu tiên, chúng ta sẽ thử nghiệm cách làm phổ biến nhưng **kém an toàn**: Lưu JWT vào `localStorage`."
+*   **Thao tác:**
+    1.  Nhập `username: admin`, `password: password123`.
+    2.  Click **"Login (Insecure - LocalStorage)"**.
+    3.  Giải thích: "Lúc này, Server trả về Token và Frontend lưu nó vào LocalStorage. Bạn có thể thấy Token hiện ra ở mục 'Current Access Token'."
+
+### Bước 3: Mô phỏng tấn công XSS (Audit - Token Leakage)
+*   **Lời dẫn:** "Giả sử trang web bị tấn công XSS, hacker có thể dễ dàng lấy cắp token này."
+*   **Thao tác:**
+    1.  Click nút **"Steal from LocalStorage"**.
+    2.  Giải thích: "Chỉ với 1 dòng lệnh Javascript (`localStorage.getItem`), hacker đã lấy được toàn bộ mã xác thực của bạn. Từ đây, họ có quyền mạo danh bạn để gọi các API nhạy cảm."
+    3.  Click **"Test Admin Access"** để chứng minh hacker vẫn có thể truy cập dữ liệu admin.
+
+### Bước 4: Demo Đăng nhập an toàn (Secure Login)
+*   **Lời dẫn:** "Để khắc phục, chúng ta sẽ sử dụng cơ chế **HttpOnly Cookie**."
+*   **Thao tác:**
+    1.  Click **"Logout"**.
+    2.  Click **"Login (Secure - HttpOnly Cookie)"**.
+    3.  Giải thích: "Lần này, Server không trả Token về qua body mà đặt trực tiếp vào Cookie với cờ `HttpOnly`. Hãy để ý mục 'Current Access Token' sẽ báo là 'Hidden in HttpOnly Cookie'."
+
+### Bước 5: Kiểm chứng khả năng bảo vệ (Audit - Failure to Steal)
+*   **Lời dẫn:** "Hãy xem hacker có làm gì được không."
+*   **Thao tác:**
+    1.  Click nút **"Steal from Cookie"**.
+    2.  Giải thích: "Lần này hacker đã thất bại! Trình duyệt ngăn chặn mọi đoạn mã Javascript truy cập vào Cookie này. Đây là cách bảo vệ hiệu quả nhất chống lại lỗi rò rỉ token qua XSS."
+
+---
+
+## 3. Giải Thích Kỹ Thuật (Technical Deep Dive)
+
+### Cơ chế JWT trong Code
+- **`jwt.sign()`**: Dùng để tạo ra chuỗi mã hóa chứa thông tin người dùng (Payload) và chữ ký (Signature).
+- **`jwt.verify()`**: Middleware ở backend kiểm tra tính hợp lệ của chữ ký trước khi cho phép truy cập tài nguyên.
+
+### Tại sao HttpOnly Cookie lại an toàn?
+| Đặc điểm | LocalStorage | HttpOnly Cookie |
+| :--- | :--- | :--- |
+| **Truy cập qua JS** | Có (Dễ bị XSS) | **Không** (An toàn trước XSS) |
+| **Gửi kèm Request** | Phải code tay (`Authorization` Header) | Tự động gửi bởi trình duyệt |
+| **Bảo vệ CSRF** | Tự nhiên an toàn | Cần cấu hình `SameSite` |
+
+---
+*Người soạn thảo: Hà Vũ Công - 23020014*
