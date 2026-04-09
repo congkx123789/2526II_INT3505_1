@@ -13,6 +13,9 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ origin: true, credentials: true })); // Cho phép gửi Cookie
 
+// Serve static files (index.html, etc.)
+app.use(express.static('.'));
+
 // --- Mock User Database ---
 const users = {
   admin: {
