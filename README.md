@@ -24,9 +24,28 @@
 - Quản lý resource hierarchy và partial updates (PATCH).
 
 ### Week 4: API Specification & OpenAPI
-
 - Tài liệu hóa API theo chuẩn **OpenAPI Specification (OAS)**.
 - Demo tự động sinh Swagger UI từ Python Flask (sử dụng Flasgger).
 - Xây dựng Schema chi tiết cho đối tượng `Book` (bao gồm trường `genre`).
 - Kiểm thử tự động (Automated Testing) với bộ test case cho các CRUD operations.
 - **Live Demo (Express API):** [https://expressdemo.vercel.app/api-docs/](https://expressdemo.vercel.app/api-docs/)
+
+### Week 5: API Design & Resource Modeling
+- Thiết kế Data Model (Entities & Attributes) cho hệ thống Quản lý Thư viện.
+- Xây dựng Resource Tree và RESTful Endpoints (Nested resources).
+- Phân tích và so sánh lý thuyết 3 chiến lược phân trang: Page-based, Offset-limit, và Cursor-based.
+
+### Week 6: JWT Authentication & Security Audit
+- Triển khai Xác thực (Authentication) và Phân quyền (Authorization - RBAC) bằng JWT.
+- So sánh Access Token và Refresh Token.
+- **Security Audit:** Demo thực tế rủi ro rò rỉ Token (XSS) khi lưu vào `localStorage` và giải pháp bảo mật với `HttpOnly Cookie`.
+
+### Comparative Studies & Benchmarks
+
+#### [OpenAPI Comparison](./openapi-comparison)
+- Phân tích và so sánh các định dạng tài liệu hóa API phổ biến: **OpenAPI (Swagger)**, **API Blueprint**, **RAML**, và **TypeSpec**.
+- Minh họa cách thiết kế cùng một hệ thống trên 4 định dạng khác nhau.
+
+#### [Pagination Benchmark](./Pagination_Benchmark)
+- Thử nghiệm hiệu năng thực tế (Empirical Benchmarking) trên tập dữ liệu 1 triệu bản ghi.
+- Chứng minh lợi thế vượt trội của **Cursor-based Pagination** (~200x lần) so với Offset-based khi xử lý dữ liệu lớn (Deep Paging).
