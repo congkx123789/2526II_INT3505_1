@@ -1,99 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Week 6: JWT Security Audit Demo</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 800px; margin: auto; padding: 20px; line-height: 1.6; }
-        .card { border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .hacker { background-color: #1b1b1b; color: #00ff00; }
-        .danger { border-left: 5px solid #ff4444; }
-        .secure { border-left: 5px solid #44ff44; }
-        button { background-color: #333; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; transition: 0.3s; }
-        button:hover { background-color: #555; }
-        pre { background: #f4f4f4; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .hacker {
+            background-color: #1b1b1b;
+            color: #00ff00;
+        }
+
+        .danger {
+            border-left: 5px solid #ff4444;
+        }
+
+        .secure {
+            border-left: 5px solid #44ff44;
+        }
+
+        button {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
     </style>
 </head>
+
 <body>
     <h1>Week 6: JWT Security Audit Lab</h1>
-    <p>Demo này so sánh việc lưu trữ Token trong <b>localStorage</b> (Dễ bị tấn công XSS) và <b>HttpOnly Cookie</b> (Bảo mật).</p>
+    <p>Demo này so sánh việc lưu trữ Token trong <b>localStorage</b> (Dễ bị tấn công XSS) và <b>HttpOnly Cookie</b> (Bảo
+        mật).</p>
 
     <!-- Section 1: Dashboard -->
     <div class="card">
         <h3>1. Đăng nhập (Authentication)</h3>
-        <p>Chọn phương thức đăng nhập để xem sự khác biệt:</p>
-        <div style="display: flex; gap: 10px;">
-            <button onclick="loginInsecure()" style="background-color: #ff4444;">Login (Insecure - LocalStorage)</button>
-            <button onclick="loginSecure()" style="background-color: #44aa44;">Login (Secure - HttpOnly Cookie)</button>
-            <button onclick="logout()">Logout</button>
+        <p>Thử nghiệm các tài khoản: <b>admin/password123</b> (Role: admin) hoặc <b>user/password456</b> (Role: student)
+        </p>
+
+        <div style="margin-bottom: 15px;">
+            <input type="text" id="username" placeholder="Username"
+                style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+            <input type="password" id="password" placeholder="Password"
+                style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
         </div>
-        <p id="auth-status" style="font-weight: bold; margin-top: 10px;">Status: Not Logged In</p>
+
+        <div style="display: flex; gap: 10px;">
+            <button onclick="loginInsecure()" style="background-color: #ff4444;">Login (Insecure -
+                LocalStorage)</button>
+            <button onclick="loginSecure()" style="background-color: #44aa44;">Login (Secure - HttpOnly Cookie)</button>
+            <button onclick="logout()" style="background-color: #777;">Logout</button>
+        </div>
+        <p id="auth-status" style="font-weight: bold; margin-top: 10px; color: #333;">Status: Not Logged In</p>
+        <div id="current-token-display" style="font-size: 0.8em; color: #666; word-break: break-all; margin-top: 5px;">
+            <b>Current Access Token:</b> <span id="token-value">None</span>
+        </div>
     </div>
 
     <!-- Section 2: Protected Resources -->
     <div class="card">
         <h3>2. Truy cập tài nguyên (Authorization)</h3>
-        <button onclick="getProfile()">Truy cập Profile</button>
-        <button onclick="getAdminData()">Truy cập Admin Only</button>
-        <pre id="api-response">Response data will appear here...</pre>
+        <p>Kiểm tra quyền hạn của Token hiện tại:</p>
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <button onclick="getProfile()">Truy cập Profile (Student/Admin)</button>
+            <button onclick="getAdminData()" style="background-color: #ff9800;">Test Admin Access (Admin only)</button>
+        </div>
+        <pre id="api-response" style="border: 1px solid #ddd; min-height: 50px;">Response data will appear here...</pre>
     </div>
 
     <!-- Section 3: Hacker Tools (Audit Simulation) -->
     <div class="card hacker">
-        <h3>3. Hacker Terminal (Security Audit)</h3>
-        <p>Thử nghiệm khả năng đánh cắp Token từ trình duyệt:</p>
+        <h3 style="color: #0f0;">3. Hacker Simulator (Security Audit)</h3>
+        <p>Mô phỏng đính kèm mã độc JS (XSS) để đánh cắp Token:</p>
         <div style="display: flex; gap: 10px;">
-            <button onclick="stealFromLocalStorage()" style="background-color: #008800; color: white;">Steal from LocalStorage</button>
-            <button onclick="stealFromCookie()" style="background-color: #008800; color: white;">Steal from Cookie (document.cookie)</button>
+            <button onclick="stealFromLocalStorage()" style="background-color: #c00; color: white;">Steal from
+                LocalStorage</button>
+            <button onclick="stealFromCookie()" style="background-color: #c00; color: white;">Steal from Cookie
+                (document.cookie)</button>
         </div>
-        <p><b>Dòng lệnh Hacker đã thực thi:</b></p>
-        <pre id="hacker-result" style="background: #222; color: #0f0;">Terminal results...</pre>
+        <p style="margin-top: 15px;"><b>Hacker Terminal Output:</b></p>
+        <pre id="hacker-result"
+            style="background: #000; color: #0f0; border: 1px solid #0f0; padding: 15px; font-family: 'Courier New', Courier, monospace;">[Awaiting target...]</pre>
     </div>
 
     <script>
-        const API_URL = "http://localhost:5000";
+        const API_URL = window.location.origin; // Tự động lấy URL server hiện tại
+
+        function updateStatus(status, color = "#333", token = "None") {
+            document.getElementById('auth-status').innerText = `Status: ${status}`;
+            document.getElementById('auth-status').style.color = color;
+            document.getElementById('token-value').innerText = token;
+        }
 
         // ✅ 1. LOGIN KHÔNG AN TOÀN (LƯU VÀO LOCALSTORAGE)
         async function loginInsecure() {
+            const user = document.getElementById('username').value || 'admin';
+            const pass = document.getElementById('password').value || 'password123';
+
             try {
                 const res = await fetch(`${API_URL}/api/login-insecure`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: 'admin', password: 'password123' })
+                    body: JSON.stringify({ username: user, password: pass })
                 });
                 const data = await res.json();
                 if (data.access_token) {
                     localStorage.setItem('access_token', data.access_token);
-                    document.getElementById('auth-status').innerText = "Status: Logged In (Insecure - LocalStorage)";
-                    alert("Logged in! Token stored in localStorage.");
+                    updateStatus(`Logged In (Insecure - LocalStorage) as ${user}`, "#ff4444", data.access_token);
+                    alert("Logged in! Token stored in localStorage (Dangerous!)");
+                } else {
+                    alert("Login failed: " + data.message);
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { alert("Error connecting to server"); }
         }
 
-        // ✅ 2. LOGIN AN TOÀN (LƯU VÀO HTTPONLY COOKIE)
+        // ✅ 2. LOGIN AN TOÀN (DÙNG HTTPONLY COOKIE)
         async function loginSecure() {
+            const user = document.getElementById('username').value || 'admin';
+            const pass = document.getElementById('password').value || 'password123';
+
             try {
-                // Xóa LocalStorage trước để demo
                 localStorage.removeItem('access_token');
-                
+
                 const res = await fetch(`${API_URL}/api/login-secure`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: 'admin', password: 'password123' })
+                    body: JSON.stringify({ username: user, password: pass })
                 });
                 const data = await res.json();
-                document.getElementById('auth-status').innerText = "Status: Logged In (Secure - HttpOnly Cookie)";
-                alert(data.message);
-            } catch (e) { console.error(e); }
+                if (res.ok) {
+                    updateStatus(`Logged In (Secure - HttpOnly Cookie) as ${user}`, "#44aa44", "Hidden in HttpOnly Cookie");
+                    alert(data.message);
+                } else {
+                    alert("Login failed: " + data.message);
+                }
+            } catch (e) { alert("Error connecting to server"); }
         }
 
         // logout
         async function logout() {
             localStorage.removeItem('access_token');
             await fetch(`${API_URL}/api/logout`, { method: 'POST' });
-            document.getElementById('auth-status').innerText = "Status: Logged Out";
-            document.getElementById('api-response').innerText = "";
-            alert("Logged out!");
+            updateStatus("Logged Out", "#333", "None");
+            document.getElementById('api-response').innerText = "Response data will appear here...";
+            document.getElementById('hacker-result').innerText = "[Awaiting target...]";
+            document.getElementById('hacker-result').style.color = "#0f0";
+            alert("Logged out and cleared tokens.");
         }
 
         // ✅ 3. TRUY CẬP PROFILE
@@ -102,11 +184,10 @@
             const headers = { 'Content-Type': 'application/json' };
             if (token) headers['Authorization'] = `Bearer ${token}`;
 
-            const res = await fetch(`${API_URL}/api/profile`, { 
+            const res = await fetch(`${API_URL}/api/profile`, {
                 method: 'GET',
                 headers: headers,
-                // Quan trọng: credentials 'include' để gửi kèm Cookie HttpOnly (nếu có)
-                credentials: 'include' 
+                credentials: 'include'
             });
             const data = await res.json();
             document.getElementById('api-response').innerText = JSON.stringify(data, null, 2);
@@ -132,11 +213,11 @@
             const token = localStorage.getItem('access_token');
             const result = document.getElementById('hacker-result');
             if (token) {
-                result.innerText = `[SUCCESS] Token stolen from localStorage: ${token.substring(0, 50)}...`;
+                result.innerText = `[SUCCESS] Token stolen from localStorage!\n\nExtracted JWT:\n${token}`;
                 result.style.color = "#ff4444";
             } else {
-                result.innerText = `[FAILED] No token found in localStorage!`;
-                result.style.color = "#00ff00";
+                result.innerText = `[FAILED] No token found in localStorage. The victim might be using HttpOnly Cookies!`;
+                result.style.color = "#0f0";
             }
         }
 
@@ -144,13 +225,14 @@
             const cookies = document.cookie;
             const result = document.getElementById('hacker-result');
             if (cookies.includes('access_token')) {
-                result.innerText = `[SUCCESS] Token stolen from document.cookie: ${cookies}`;
+                result.innerText = `[SUCCESS] Token found in document.cookie: ${cookies}`;
                 result.style.color = "#ff4444";
             } else {
-                result.innerText = `[FAILED] Cannot read HttpOnly cookie access_token via script!`;
-                result.style.color = "#00ff00";
+                result.innerText = `[CRITICAL FAILURE] Cannot read 'access_token' via document.cookie.\nCookie is protected with HttpOnly flag. Hacker is blind!`;
+                result.style.color = "#0f0";
             }
         }
     </script>
 </body>
+
 </html>
