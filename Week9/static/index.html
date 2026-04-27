@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Versioning Lab | Week 9</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #ec4899;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        h1 { margin-bottom: 2rem; grid-column: span 2; text-align: center; font-weight: 600; font-size: 2.5rem; }
+
+        .card {
+            background: var(--card);
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stage-selector {
+            grid-column: span 2;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            background: rgba(255,255,255,0.05);
+            padding: 1rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stage-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            opacity: 0.6;
+        }
+        .stage-btn.active { opacity: 1; transform: scale(1.05); box-shadow: 0 0 15px currentColor; }
+        .stage-btn[data-stage="COEXIST"] { background: var(--success); color: white; }
+        .stage-btn[data-stage="DEPRECATED"] { background: var(--warning); color: white; }
+        .stage-btn[data-stage="BROWNOUT"] { background: #f97316; color: white; }
+        .stage-btn[data-stage="SUNSET"] { background: var(--danger); color: white; }
+
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; opacity: 0.8; }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.2);
+            color: white;
+            font-family: inherit;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            background: var(--primary);
+            color: white;
+            transition: 0.3s;
+        }
+        .btn:hover { background: #4f46e5; }
+        .btn-v2 { background: var(--secondary); }
+        .btn-v2:hover { background: #db2777; }
+
+        .inspector {
+            grid-column: span 2;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .header-panel { background: #000; border-radius: 1rem; padding: 1.5rem; font-family: monospace; font-size: 0.85rem; overflow-x: auto; }
+        .header-item { margin-bottom: 0.25rem; }
+        .header-key { color: var(--secondary); }
+        .header-val { color: var(--success); }
+        .header-highlight { color: var(--danger); font-weight: bold; background: rgba(239, 68, 68, 0.2); padding: 0.1rem 0.3rem; border-radius: 0.2rem; }
+
+        .res-body { background: #111; color: #fff; padding: 1rem; border-radius: 1rem; min-height: 200px; white-space: pre-wrap; font-family: monospace; }
+        
+        .badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 0.5rem; font-size: 0.7rem; font-weight: bold; margin-bottom: 0.5rem; text-transform: uppercase; }
+        .badge-v1 { background: var(--warning); color: #000; }
+        .badge-v2 { background: var(--primary); color: #fff; }
+
+        .status-pill { padding: 0.5rem 1rem; border-radius: 2rem; font-weight: bold; font-size: 0.8rem; display: inline-block; margin-bottom: 1rem; }
+        .status-200 { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .status-4xx, .status-5xx { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+    </style>
+</head>
+<body>
+
+    <h1>API Versioning & Lifecycle Lab</h1>
+
+    <div class="stage-selector" id="stageSelector">
+        <button class="stage-btn" data-stage="COEXIST">COEXIST (Chạy song song)</button>
+        <button class="stage-btn" data-stage="DEPRECATED">DEPRECATED (Cảnh báo)</button>
+        <button class="stage-btn" data-stage="BROWNOUT">BROWNOUT (Gián đoạn)</button>
+        <button class="stage-btn" data-stage="SUNSET">SUNSET (Khai tử)</button>
+    </div>
+
+    <div class="container">
+        <!-- V1 Form -->
+        <div class="card">
+            <span class="badge badge-v1">Version 1.0 (Legacy)</span>
+            <div class="form-group">
+                <label>Target URL</label>
+                <input type="text" value="/api/v1/payments" readonly>
+            </div>
+            <div class="form-group">
+                <label>Amount (Default VND)</label>
+                <input type="number" id="v1_amount" value="100000">
+            </div>
+            <div class="form-group">
+                <label>Order ID</label>
+                <input type="text" id="v1_order" value="ORD_V1_789">
+            </div>
+            <button class="btn" onclick="sendV1()">Gửi Request V1</button>
+        </div>
+
+        <!-- V2 Form -->
+        <div class="card">
+            <span class="badge badge-v2">Version 2.0 (Breaking Change)</span>
+            <div class="form-group">
+                <label>Target URL</label>
+                <input type="text" value="/api/v2/payments" readonly>
+            </div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label>Amount</label>
+                    <input type="number" id="v2_amount" value="100000">
+                </div>
+                <div class="form-group">
+                    <label>Currency</label>
+                    <select id="v2_currency">
+                        <option value="VND">VND</option>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Payment Method</label>
+                <select id="v2_method">
+                    <option value="credit_card">Credit Card</option>
+                    <option value="e-wallet">E-Wallet</option>
+                </select>
+            </div>
+            <button class="btn btn-v2" onclick="sendV2()">Gửi Request V2</button>
+        </div>
+
+        <!-- Results -->
+        <div class="inspector">
+            <div>
+                <h3>Response Headers</h3>
+                <div class="header-panel" id="headers">// Metadata sẽ hiển thị ở đây</div>
+            </div>
+            <div>
+                <h3>Response Body <span id="statusWrap"></span></h3>
+                <div class="res-body" id="body">// Dữ liệu trả về sẽ hiển thị ở đây</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
