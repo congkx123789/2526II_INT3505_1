@@ -40,6 +40,27 @@
 - So sánh Access Token và Refresh Token.
 - **Security Audit:** Demo thực tế rủi ro rò rỉ Token (XSS) khi lưu vào `localStorage` và giải pháp bảo mật với `HttpOnly Cookie`.
 
+### Week 7: OpenAPI Server Generation
+- Tự động sinh mã nguồn Server Stub (Python Flask & Connexion) từ định dạng OpenAPI Specification.
+- Hỗ trợ chạy dịch vụ qua Docker và kiểm thử tích hợp tự động với `tox`.
+
+### Week 8: API Testing & Quality Assurance
+- Xây dựng bộ kiểm thử API tự động (Postman Collection & Newman CLI) cho các endpoint CRUD.
+- Đo kiểm hiệu năng chịu tải (Load Testing) và phân tích Response Time, Error Rate với Locust.
+
+### Week 9: API Versioning & Lifecycle Management
+- Triển khai kịch bản thực tế 4 bước quản lý vòng đời API thanh toán (Coexist -> Deprecated -> Brownout -> Sunset).
+- Xử lý Breaking Changes và thông báo cho nhà phát triển khi chuyển từ v1 sang v2.
+
+### Week 10: Service Operation – Security & Monitoring
+- Tích hợp các giải pháp bảo mật và giám sát hệ thống (Rate Limiting, Winston Logging, Prometheus Metrics).
+- Triển khai mẫu thiết kế Circuit Breaker (Opossum) bảo vệ ứng dụng trước sự cố Cascading Failure từ các API bên ngoài.
+
+### Week 11-12: API Design Patterns (Python Flask API)
+- Triển khai và kết hợp nhiều mẫu thiết kế API hiện đại: CRUD, Query (Filtering/Sorting/Pagination), HATEOAS, Webhook và Event-driven bằng Python Flask.
+- So sánh chi tiết các giao thức REST, gRPC, và GraphQL; phân tích thiết kế API thực tế của Stripe và GitHub.
+- Xây dựng hệ thống gửi/nhận Webhook bảo mật với chữ ký xác thực HMAC SHA256 và tích hợp vào hệ thống thông báo.
+
 ### Comparative Studies & Benchmarks
 
 #### [OpenAPI Comparison](./openapi-comparison)

@@ -1,0 +1,274 @@
+{
+  "info": {
+    "name": "Week 11-12: API Design Patterns",
+    "description": "Bộ Postman Collection kiểm thử đầy đủ các mẫu thiết kế: CRUD, Query (Filtering, Sorting, Pagination), HATEOAS, Webhook và Event-driven.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Khám phá API Root (HATEOAS)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            ""
+          ]
+        },
+        "description": "Kiểm tra endpoint gốc để lấy danh sách các đường dẫn liên kết (_links) theo chuẩn HATEOAS."
+      },
+      "response": []
+    },
+    {
+      "name": "2. Lấy danh sách đơn hàng (Query Pattern & HATEOAS)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/orders?status=PAID&sortBy=amount&order=DESC&page=1&limit=2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "orders"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "PAID"
+            },
+            {
+              "key": "sortBy",
+              "value": "amount"
+            },
+            {
+              "key": "order",
+              "value": "DESC"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "2"
+            }
+          ]
+        },
+        "description": "Thực hiện lọc theo trạng thái PAID, sắp xếp theo số tiền giảm dần, và phân trang lấy 2 bản ghi."
+      },
+      "response": []
+    },
+    {
+      "name": "3. Lấy thông tin 1 đơn hàng (HATEOAS)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/orders/ORD-001",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "orders",
+            "ORD-001"
+          ]
+        },
+        "description": "Xem chi tiết một đơn hàng kèm theo các liên kết thao tác có thể thực hiện (self, update, delete, pay)."
+      },
+      "response": []
+    },
+    {
+      "name": "4. Tạo đơn hàng mới (Kích hoạt Webhook & Event-driven)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customer\": \"Trần Minh Quân\",\n  \"product\": \"Khóa học Master Microservices & Docker\",\n  \"amount\": 3500000\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/orders",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "orders"
+          ]
+        },
+        "description": "Tạo một đơn hàng mới. Hành động này sẽ kích hoạt sự kiện order.created và tự động gửi webhook đến các subscriber."
+      },
+      "response": []
+    },
+    {
+      "name": "5. Cập nhật đơn hàng (PUT CRUD)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customer\": \"Nguyen Van A (Updated)\",\n  \"amount\": 1800000\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/orders/ORD-001",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "orders",
+            "ORD-001"
+          ]
+        },
+        "description": "Cập nhật thông tin đơn hàng và phát sự kiện order.updated."
+      },
+      "response": []
+    },
+    {
+      "name": "6. Thanh toán đơn hàng (Kích hoạt payment.success Webhook)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/orders/ORD-001/pay",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "orders",
+            "ORD-001",
+            "pay"
+          ]
+        },
+        "description": "Thực hiện thanh toán đơn hàng. Hành động này kích hoạt sự kiện payment.success và gửi thông báo qua Webhook."
+      },
+      "response": []
+    },
+    {
+      "name": "7. Xóa đơn hàng (DELETE CRUD)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/orders/ORD-003",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "orders",
+            "ORD-003"
+          ]
+        },
+        "description": "Xóa một đơn hàng."
+      },
+      "response": []
+    },
+    {
+      "name": "8. Đăng ký nhận Webhook (Webhook Subscription)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"url\": \"http://localhost:3000/api/webhooks/receiver\",\n  \"events\": [\"order.created\", \"payment.success\"],\n  \"secret\": \"whsec_supersecretkey123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/webhooks/subscribe",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "webhooks",
+            "subscribe"
+          ]
+        },
+        "description": "Đăng ký một URL mới để lắng nghe các sự kiện webhook từ hệ thống kèm secret key xác thực chữ ký."
+      },
+      "response": []
+    },
+    {
+      "name": "9. Xem danh sách Webhook đang đăng ký",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/webhooks/subscriptions",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "webhooks",
+            "subscriptions"
+          ]
+        },
+        "description": "Liệt kê tất cả các webhook subscription đang hoạt động."
+      },
+      "response": []
+    },
+    {
+      "name": "10. Kiểm tra hệ thống thông báo (Kiểm chứng Webhook Integration)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/notifications",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "notifications"
+          ]
+        },
+        "description": "Lấy danh sách các thông báo của hệ thống. Bạn sẽ thấy các thông báo ghi nhận từ sự kiện hệ thống và các thông báo do Webhook Receiver tiếp nhận thành công."
+      },
+      "response": []
+    }
+  ]
+}
